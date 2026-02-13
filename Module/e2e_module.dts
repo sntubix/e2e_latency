@@ -1,0 +1,20 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2712";
+
+    fragment@0 {
+        target-path = "/";
+        __overlay__ {
+            gpio_irq_node {
+                compatible = "custom,gpioirq";
+                led-gpios = <&gpio 17 0>;
+                gpio-irq-gpios = <&gpio 16 0>;         // GPIO 16, active high
+                interrupt-parent = <&gpio>;
+                interrupts = <16 2>;                   // Falling edge
+                bias-disable;
+            };
+        };
+    };
+};
