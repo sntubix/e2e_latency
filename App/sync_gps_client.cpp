@@ -99,7 +99,7 @@ int checkSynchronisation(int &n_meas, double &trigger)
     double time_Pi_two = extractTimestamp(response);
 
     // Ask other Pi for timestamps
-    std::string dmesgLine = requestDmesgFromPi2("10.19.108.184");
+    std::string dmesgLine = requestDmesgFromPi2("XX.XX.XX.XX");
     double time_Pi_one = extractTimestamp(dmesgLine);
 
     // Compute offset
@@ -273,7 +273,7 @@ int main() {
 
     // Export results into a csv
     int duration = static_cast<int>(meas_time);
-    std::string path = "/home/francois.provost/latency_test/test_results/";
+    std::string path = "path/to/results/";
     std::string baseFilename = path + "synchronisation_test_gps_" + 
                                std::to_string(duration) + "s";
 

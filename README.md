@@ -224,10 +224,11 @@ This configures your gpio descriptor used in C module
   ```
 
 ### Add overlay to boot config file
+ - Open boot config file
   ```bash
   sudo nano /boot/firmware/config.txt
   ```
-
+ - Add
   ````text
   #[all]
   ...
@@ -274,7 +275,14 @@ This configures your gpio descriptor used in C module
     ```
 
 ### Launch bash script
-- Launch.sh provided in App folder will automatically build and load the module then start monitoring in real-time
+- Launch.sh is provided in App folder
+- Indicate the folder containing your module
+```bash
+#!/bin/bash
+
+MODULE_FOLDER="PATH TO MODULE FOLDER"
+```
+- On utilisation the script will automatically build and load the module then start monitoring in real-time
 - Once you reach the wanted number of iterations, press CTRL+C to stop the process, the script will save logs into a text files then unload the module.
 - **The script expect an argument for text files names use "station" and "vehicle" to have name format used in python script (e2e_extract.py) for data extraction**
 
@@ -409,7 +417,7 @@ The full application is separated into sync_gps_client and sync_gps_server, each
   sudo taskset -c 3 chrt -f 99 ./sync_gps_client
   ```
 ### Modify ip address to RPI-Server
-
+ - Enter the correc IP address of you RPI-Server
   ```c
   // Compare timestamps and register store them
   int checkSynchronisation(int &n_meas, double &trigger)
@@ -419,7 +427,7 @@ The full application is separated into sync_gps_client and sync_gps_server, each
     double time_Pi_two = extractTimestamp(response);
 
     // Ask other Pi for timestamps
-    std::string dmesgLine = requestDmesgFromPi2("10.19.108.184"); // Change Value here
+    std::string dmesgLine = requestDmesgFromPi2("XX.XX.XX.XX"); // Change Value here
     double time_Pi_one = extractTimestamp(dmesgLine);
 
     // Compute offset
@@ -452,7 +460,7 @@ The full application is separated into sync_gps_client and sync_gps_server, each
   ```
 
 ### Modify Result file location
-
+ - Enter your result folder here
   ```c
   // Export results into a csv
   int duration = static_cast<int>(meas_time);
