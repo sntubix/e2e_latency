@@ -38,10 +38,10 @@ This README provides everything needed to install, configure, and run the full s
 |   └── Makefile
 ├── Results/
 │   ├── Baseline
-|   |   └── Baseline.xlsx
+|   |   └── Baseline.csv
 │   └── Field tests
-|       ├── Field_Test_4G.xlsx
-|       └── Field_Test_5G.xlsx
+|       ├── Field_Test_4G.csv
+|       └── Field_Test_5G.csv
 ├── Images/
 │   └── Images content in README.md
 └── README.md
