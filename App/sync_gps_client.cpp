@@ -19,9 +19,8 @@
 #define GPIO_OUTPUT 17
 
 #define ITERATIONS 1800 // Adjust to number of iteration wanted
-
-#define R_RT 3352479598530.0
-#define Q_MONO 1074961760.0
+#define SLEEP_S 0
+#define SLEEP_NS 500000000
 
 std::vector<double> table_offset;
 std::vector<double> table_jitter;
@@ -147,7 +146,6 @@ int main() {
     double hour_time = 0L;
     int pin_value = 1;
     int i = ITERATIONS;
-    double P_pred = 1000000000000.0;
 
     // Access gpio chip
     struct gpiod_chip *chip = gpiod_chip_open(GPIO_CHIP);
@@ -181,8 +179,8 @@ int main() {
         std::cout << "Reaquest GPIO 17 line\n";
     }
 
-    sleep_time.tv_sec = 0;
-    sleep_time.tv_nsec = 500000000;
+    sleep_time.tv_sec = SLEEP_S;
+    sleep_time.tv_nsec = SLEEP_NS;
     std::cout << "Initiate Timestamps" << std::endl;
     hour_time = get_time_ns(CLOCK_REALTIME);
     std::cout << "hour_time: " << hour_time <<std::endl;
@@ -274,12 +272,10 @@ int main() {
     }
 
     // Export results into a csv
-    int step = 500;
     int duration = static_cast<int>(meas_time);
     std::string path = "/home/francois.provost/latency_test/test_results/";
     std::string baseFilename = path + "synchronisation_test_gps_" + 
-                               std::to_string(duration) + "s_" + 
-                               std::to_string(step) + "ms";
+                               std::to_string(duration) + "s";
 
     std::string filename = getFilename(baseFilename);
 
