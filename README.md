@@ -340,7 +340,7 @@ This configures your gpio descriptor used in C module
     ```
 
 ### Launch bash script
-- YYou can Add the following function to your .bashrc to build and run module automatically
+- You can Add the following function to your .bashrc to build and run module automatically
 ```bash
   MODULE_FOLDER="PATH TO MODULE FOLDER"
 
