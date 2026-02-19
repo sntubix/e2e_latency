@@ -2,9 +2,9 @@
 
 The system includes:
 
-- Raspberry Pi GPIO interrupt handling  
-- A custom Linux kernel module  
-- Chrony-based time synchronization  
+- Raspberry Pi Linux installation and configuration 
+- custom Linux kernel module for movement detection and GPIO interrupt handling
+- Chrony and GPS based time synchronization
 - Client/server C++ synchronization test applications  
 - Automated launch and export of GPIO interrupt timestamps  
 
@@ -24,7 +24,6 @@ This README provides everything needed to install, configure, and run the full s
 ```
 .
 ├── App/
-|   ├── bashrc_function.txt
 |   ├── e2e_extract.py
 │   ├── sync_gps_client.cpp
 │   └── sync_gps_server.cpp
@@ -161,18 +160,58 @@ This README provides everything needed to install, configure, and run the full s
   ```bash
   chronyc tracking
   ```
-### Modify update interval
+  
+## 4.1. Configure GPS
+### Configure Chrony for GPS synchronisation
+- open chrony config file
   ```bash
   sudo nano /etc/chrony/chrony.conf
   ```
-  ````text
-  TO DO
-  ````
+- Replace NTP server config by GPS
+  ```text
+  # NMEA via gpsd SHM (unit 0)
+  refclock SHM 0 refid NMEA poll 4 offset 0.241 delay 0.2 noselect
 
-  - **minpoll** and **maxpoll** specify the range for update interval. 2-> 2^2 = 4 seconds
+  # PPS from kernel
+  refclock PPS /dev/pps0 lock NMEA refid PPS poll 2
 
-## 4.1. Configure GPS
-# TO DO
+  # This directive specify the file into which chronyd will store the rate
+  # information.
+  driftfile /var/lib/chrony/chrony.drift
+
+  # Save NTS keys and cookies.
+  #ntsdumpdir /var/lib/chrony
+
+  # Uncomment the following line to turn logging on.
+  log tracking measurements statistics
+
+  # Log files location.
+  logdir /var/log/chrony
+
+  # Stop bad estimates upsetting machine clock.
+  maxupdateskew 100.0
+
+  # This directive enables kernel synchronisation (every 11 minutes) of the
+  # real-time clock. Note that it can't be used along with the 'rtcfile' directive.
+  rtcsync
+
+  # Step the system clock instead of slewing it if the adjustment is larger than
+  # one second, but only in the first three clock updates.
+  makestep 1 3
+
+  # Get TAI-UTC offset and leap seconds from the system tz database.
+  # This directive must be commented out when using time sources serving
+  # leap-smeared time.
+  leapsectz right/UTC
+  ```
+- Add gpio18 (or other) as PPS signal source in boot config file
+  ```bash
+  sudo nano /boot/firmware/config.txt
+  ```
+  ```text
+  # PPS
+  dtoverlay=pps-gpio,pippin=18
+  ```
 
 ## 4.2 Attach Chrony to a particular core
 ### Get chrony daemon (chronyd) process id (pid)
@@ -201,6 +240,31 @@ This README provides everything needed to install, configure, and run the full s
   ~$ sudo taskset -pc 0 924
   pid 924's current affinity list: 0-3
   pid 924's new affinity list: 0
+  ```
+
+**You can add the following script at the end of you .bashrc to check and assign core when opening a ssh session**
+```text
+prt_info "Check and Assign Chrony Core affinity"
+pids=($(pidof chronyd))
+printf "%s\n" "${pids[@]}"
+start_core=0
+
+for i in "${!pids[@]}"; do
+    pid="${pids[$i]}"
+    core=$start_core
+
+    # Get current affinity (just the number list)
+    current_affinity=$(sudo taskset -pc "$pid" 2>/dev/null | awk -F': ' '{print $2}')
+
+    # If affinity is already correct, skip
+    if [[ "$current_affinity" == "$core" ]]; then
+        echo "Chrony already affected to core 0"
+        continue
+    fi
+
+    # Otherwise assign it
+    sudo taskset -pc "$core" "$pid"
+done
   ```
 ---
 
@@ -267,7 +331,8 @@ This configures your gpio descriptor used in C module
   sudo gpioinfo
   ```
 
-  <!-- ![alt text](images/gpioinfo.png) -->
+  ![alt text](images/gpioinfo.png)
+  
   - **DO NOT REBOOT OR MODULE WILL UNLOADED**
   - Unload manually
     ```bash
@@ -275,14 +340,54 @@ This configures your gpio descriptor used in C module
     ```
 
 ### Launch bash script
-- Launch.sh is provided in App folder
-- Indicate the folder containing your module
+- YYou can Add the following function to your .bashrc to build and run module automatically
 ```bash
-#!/bin/bash
+  MODULE_FOLDER="PATH TO MODULE FOLDER"
 
-MODULE_FOLDER="PATH TO MODULE FOLDER"
+  launch(){
+      module="e2e_module"
+
+      trap 'echo "Stopping live view..."' INT
+
+      echo -e "Search existing module\n"
+      loaded=$(lsmod | awk -v mod="$module" '$1 == mod {print $1}')
+      echo $loaded
+      if [ "$loaded" = "$module" ]; then
+          echo "Module already loaded"
+      else
+          echo "Module is not loaded"
+          echo -e "Building Module\n"
+          cd $MODULE_FOLDER
+          make clean && make
+          cd -
+          echo "Done"
+          echo -e "Loading Module\n"
+          sudo insmod "$MODULE_FOLDER/$module.ko"
+          sudo dmesg | tail -50
+          sudo dmesg -C
+          echo "Done"
+      fi
+      echo -e "Start Monitoring\n"
+      sudo dmesg --follow
+      echo "Exit Monitoring"
+      echo -e "Unloading\n"
+      sudo rmmod "$module"
+      echo "Done"
+      echo -e "Saving data\n"
+      i=0
+      name="e2e_"$1"_${i}.txt"
+      while [ -e "$MODULE_FOLDER/test_results/$name" ]; do
+          ((i++))
+          name="e2e_"$1"_${i}.txt"
+      done
+      sudo dmesg > "$MODULE_FOLDER/test_results/$name"
+      echo "Data saved at $MODULE_FOLDER/test_results/$name"
+      echo -e "Clearing LOGS\n"
+      sudo dmesg -C
+      echo "Done"
+  }
 ```
-- On utilisation the script will automatically build and load the module then start monitoring in real-time
+- On use the script will automatically build and load the module then start monitoring in real-time
 - Once you reach the wanted number of iterations, press CTRL+C to stop the process, the script will save logs into a text files then unload the module.
 - **The script expect an argument for text files names use "station" and "vehicle" to have name format used in python script (e2e_extract.py) for data extraction**
 
@@ -494,13 +599,16 @@ Provide a csv containing
 
 - [Build and load dts and kernel module](#5-install-system)
 - Connect the gyroscopes, GPS module and phototranistor following this schematic.
+
+![alt text](images/schematic_sensor.png)
+
 - **The phototransistor schematic allows to switch between 3.3V to 0V when light is detected. The resistor value may need to be tweeked depending on your conditions**
 - start launch.sh on each side
 ```bash
 # On remote station
-bash launch.sh station
+launch station
 # On vehicle 
-bash launch.sh vehicle
+launch vehicle
 ```
 
 ---
@@ -511,9 +619,9 @@ bash launch.sh vehicle
 
 This repository provides:
 
-- Precise GPIO interrupt timestamping  
-- A custom Linux kernel module  
-- Chrony-based time synchronization  
+- Measurement method for Motion-to-Motion, Glass-to-Glass and End-to-End
+- A custom Linux kernel module including movement detection and phototransistor interrupt 
+- Chrony-based time synchronization with GPS PPS  
 - Real-time optimized client/server applications  
 - Results export tools  
 
