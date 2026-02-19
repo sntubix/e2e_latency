@@ -78,14 +78,14 @@ This README provides everything needed to install, configure, and run the full s
   </tr>
   </table>
 
-  ![alt text](images/PI_imager.png)
+  ![alt text](Images/PI_imager.png)
 
 
 ### Choose Edit settings
 
 - Configure user name and password
 
-  ![alt text](images/Pi_user_setting.png)
+  ![alt text](Images/Pi_user_setting.png)
 
 - Generate SSH key
   ```bash
@@ -94,7 +94,7 @@ This README provides everything needed to install, configure, and run the full s
 
 - Add SSH key for remote access
 
-  ![alt text](images/ssh_setting.png)
+  ![alt text](Images/ssh_setting.png)
 
 ### Remote access
 
@@ -331,7 +331,7 @@ This configures your gpio descriptor used in C module
   sudo gpioinfo
   ```
 
-  ![alt text](images/gpioinfo.png)
+  ![alt text](Images/gpioinfo.png)
   
   - **DO NOT REBOOT OR MODULE WILL UNLOADED**
   - Unload manually
@@ -513,7 +513,7 @@ The full application is separated into sync_gps_client and sync_gps_server, each
 - Connect RPI-Client GPIO-17 to its own GPIO-16 and RPI-Server GPIO-16 each via a 1kΩ resistor.
 - Connect RPI-Client and RPI-Server GND pins.
 
-![alt text](images/sync_schematic.png)
+![alt text](Images/sync_schematic.png)
 
 ## 6.2. Client side
 ### Build and run 
@@ -600,7 +600,7 @@ Provide a csv containing
 - [Build and load dts and kernel module](#5-install-system)
 - Connect the gyroscopes, GPS module and phototranistor following this schematic.
 
-![alt text](images/schematic_sensor.png)
+![alt text](Images/schematic_sensor.png)
 
 - **The phototransistor schematic allows to switch between 3.3V to 0V when light is detected. The resistor value may need to be tweeked depending on your conditions**
 - start launch.sh on each side
