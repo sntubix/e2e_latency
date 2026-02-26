@@ -10,6 +10,25 @@ The system includes:
 
 This README provides everything needed to install, configure, and run the full system.
 
+## Publication
+
+For a comprehensive understanding of the methodology, we recommend referring to our research paper " **End-to-End Latency Measurement Methodology for Connected and Autonomous Vehicle Teleoperation**":
+
+- [Read the Full Paper (PDF)](https://arxiv.org/abs/2602.17381)
+ 
+### Citation:
+
+If you use this methodology in your research, please use the following citation:
+ 
+```text
+@article{provost2026end,
+  title={End-to-End Latency Measurement Methodology for Connected and Autonomous Vehicle Teleoperation},
+  author={Provost, Fran{\c{c}}ois and Hawlader, Faisal and Testouri, Mehdi and Frank, Rapha{\"e}l},
+  journal={arXiv preprint arXiv:2602.17381},
+  year={2026}
+}
+```
+
 ### Abbreviations
 - RPI : Raspberry Pi
 - GPIO : General Purpose Input Output
