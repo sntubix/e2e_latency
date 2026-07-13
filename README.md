@@ -648,7 +648,7 @@ And very similar for Glass-to-Glass:
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | Camera | | Preprocessing | | Network | | Postprocessing | | Display |
 
-## Latency Estimation Methodology
+### Latency Estimation Methodology
 
 * **Preprocessing & Postprocessing:** Estimated using the execution timing of the individual threads (note: no log file is available).
 * **Camera Latency:** Initially obtained by subtracting all other latency components from the average Glass-to-Glass latency recorded during the 5G tests, then validated by connecting the camera directly to a laptop and displaying the live stream on a 144Hz monitor via HDMI (see the `Camera_Latency_Monitor_140hz` file in the `Results/Breakdown` folder).
