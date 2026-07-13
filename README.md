@@ -629,10 +629,41 @@ launch station
 # On vehicle 
 launch vehicle
 ```
+---
+
+# 8. Latency Breakdown
 
 ---
 
-# 8. Summary
+The latency breakdown was computed on the 5G tests as it yielded similar latencies results as 4G.
+For motion-to-motion, the structure is:
+
+| Data input | → | Processing | → | Transfer | → | Processing | → | Action |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Input device | | Preprocessing | | Network | | Postprocessing | | Actuation |
+
+And very similar for Glass-to-Glass:
+
+| Data input | → | Processing | → | Transfer | → | Processing | → | Render |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Camera | | Preprocessing | | Network | | Postprocessing | | Display |
+
+## Latency Estimation Methodology
+
+* **Preprocessing & Postprocessing:** Estimated using the execution timing of the individual threads (note: no log file is available).
+* **Camera Latency:** Initially obtained by subtracting all other latency components from the total measured latency, then validated by connecting the camera directly to a laptop and displaying the live stream on a 144Hz monitor via HDMI (see the `Camera_Latency_Monitor_140hz` file in the `Results/Breakdown` folder).
+* **Actuation Latency:** Derived by subtracting all other latency components from the mean Motion-to-Motion latency recorded during the 5G tests.
+* **Network Latency (General):** Estimated by capturing network traffic with Wireshark and calculating the latency using the bitrate found in the `Statistics` -> `Conversations` tab. 
+* **Command Network Latency:** Since one network packet corresponded exactly to one command package, this was calculated using the formula: 
+  $$\text{Latency} = \frac{\text{Packet Size (bits)}}{\text{Bitrate (A}\rightarrow\text{B in Statistics, bits/s)}}$$
+* **Stream Network Latency:** Since a single packet does not correspond to an entire image, this was calculated using the average compressed image size ($20.8\text{ KB}$ printed from the software, note: no log file is available) and the data rate from the `Statistics` -> `Protocol Hierarchy` tab:
+  $$\text{Latency} = \frac{\text{Average Image Size (bits)}}{\text{Data Rate (A}\rightarrow\text{B in Protocol Hierarchy, bits/s)}}$$
+
+> **Note:** All raw data and results are available in the `Results/Breakdown` folder.
+
+---
+
+# 9. Summary
 
 ---
 
