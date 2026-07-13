@@ -651,8 +651,8 @@ And very similar for Glass-to-Glass:
 ## Latency Estimation Methodology
 
 * **Preprocessing & Postprocessing:** Estimated using the execution timing of the individual threads (note: no log file is available).
-* **Camera Latency:** Initially obtained by subtracting all other latency components from the total measured latency, then validated by connecting the camera directly to a laptop and displaying the live stream on a 144Hz monitor via HDMI (see the `Camera_Latency_Monitor_140hz` file in the `Results/Breakdown` folder).
-* **Actuation Latency:** Derived by subtracting all other latency components from the mean Motion-to-Motion latency recorded during the 5G tests.
+* **Camera Latency:** Initially obtained by subtracting all other latency components from the average Glass-to-Glass latency recorded during the 5G tests, then validated by connecting the camera directly to a laptop and displaying the live stream on a 144Hz monitor via HDMI (see the `Camera_Latency_Monitor_140hz` file in the `Results/Breakdown` folder).
+* **Actuation Latency:** Derived by subtracting all other latency components from the average Motion-to-Motion latency recorded during the 5G tests.
 * **Network Latency (General):** Estimated by capturing network traffic with Wireshark and calculating the latency using the bitrate found in the `Statistics` -> `Conversations` tab. 
 * **Command Network Latency:** Since one network packet corresponded exactly to one command package, this was calculated using the formula: 
   $$\text{Latency} = \frac{\text{Packet Size (bits)}}{\text{Bitrate (A}\rightarrow\text{B in Statistics, bits/s)}}$$
